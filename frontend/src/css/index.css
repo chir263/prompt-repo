@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {}
+
+.jsoneditor {
+    border: none !important;
+}
+
+div[role="row"]:hover {
+    background-color: rgb(230, 244, 244);
+    border-bottom-color: #FFFFFF;
+    outline: 1px solid #FFFFFF;
+}
+
+.status {
+    display: inline-block;
+    border-radius: 5px;
+    padding: 5px;
+    color: white;
+    background-color: #4CAF50;
+}
+
+.status.Approved {
+    background-color: #4CAF50;
+}
+
+.status.Reverted {
+    background-color: #f44336;
+}
+
+.atable-parent div:first-child {
+    overflow: auto !important;
+}
+
+.jsoneditor-menu {
+    background-color: #00a38a !important;
+}
+
+.host-req {
+    z-index: 2147483647 !important;
+}
+
+/* [role="treeitem"]>.prompt-style {
+    background-color: #f8f9fa;
+    border: 1px solid #f8f9fa;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    height: 50px !important;
+
+} */
+
+.prompt-style {
+    background-color: #ffffff;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    height: 30px;
+    display: flex-inline;
+}
+
+.prompt-style.selected {
+    background-color: #d6d4d4;
+}
+
+.prompt-style:hover {
+    background-color: #93e0d0;
+    color: white;
+}
+
+.prompt-style:active {
+    background-color: #00a38a;
+    color: white;
+}
+
+
+
+.dir-style {
+    background-color: #a4a9a8;
+    color: white;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    height: 30px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
+}
+
+.dir-style:hover {
+    background-color: #949797;
+    color: white;
+}
+
+.dir-style:active {
+    background-color: #848686;
+    color: white;
+}

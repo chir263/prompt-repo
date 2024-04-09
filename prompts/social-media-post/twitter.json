@@ -1,0 +1,19 @@
+{
+  "master_prompt": "Please ensure that all generated tweets adhere to the following guidelines:\n\n1. Keep tweets concise and within Twitter's character limit.\n2. Maintain professionalism and accuracy in all tweets.\n3. Avoid any content that may be considered offensive, inflammatory, or misleading.\n4. Double-check facts and statistics mentioned in the tweets.\n5. Ensure clarity and coherence in language and messaging.\n6. Tailor the content to engage the target audience on Twitter.\n\nAfter generating tweets, review them to ensure they meet these criteria before posting.",
+  "prompts": [
+    {
+      "name": "Experiment Announcement",
+      "prompt_template": "Craft a tweet announcing a new experiment on Virtual Labs. Describe the {experiment} and its learning objectives briefly.",
+      "placeholders": {
+        "experiment": "experiment name"
+      }
+    },
+    {
+      "name": "Tool Announcement",
+      "prompt_template": "Write a tweet announcing a new tool on Virtual Labs. Highlight the {tool}'s functionality and encourage users to explore its features.",
+      "placeholders": {
+        "tool": "tool name"
+      }
+    }
+  ]
+}
