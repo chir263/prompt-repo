@@ -13,6 +13,7 @@ def auth_required(f):
         user = get_user(access_token)
         users = get_user_config()["users"]
 
+
         if user["login"] not in users:
             return jsonify({'error': 'Unauthorized user'}), 401
 

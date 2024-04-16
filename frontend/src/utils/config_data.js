@@ -63,6 +63,19 @@ async function getPromptTree() {
   }
 }
 
+const getFormattedPrompt = (promptObj) => {
+  let prompt = promptObj?.master_prompt || "";
+  prompt += "\n\n";
+  prompt += promptObj.prompt?.prompt_template || "";
+
+  Object.keys(promptObj.prompt?.placeholders || {}).forEach((key) => {
+    const value = promptObj.prompt.placeholders[key];
+    prompt = prompt.replaceAll("{" + key + "}", value);
+  });
+
+  return prompt || "";
+};
+
 export {
   AUTH_API,
   USER_API,
@@ -71,4 +84,5 @@ export {
   validateDate,
   validateURL,
   getPromptTree,
+  getFormattedPrompt,
 };

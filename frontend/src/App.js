@@ -10,7 +10,7 @@ import Callback from "./Callback";
 const Default = () => {
   return (
     <div>
-      <h1 className="text-4xl font-bold text-center m-4">Workflow App</h1>
+      <h1 className="text-4xl font-bold text-center m-4">Prompt Repository</h1>
       <Link
         className="submit-button w-button text-center w-32 m-4"
         to="/dashboard"

@@ -7,7 +7,7 @@
                 "experiment": "experiment name and description",
                 "features": "1. Excellent UI"
             },
-            "prompt_template": "Craft a Facebook post announcing a new experiment available on Virtual Labs. Describe the {experiment}, its objectives, and how it contributes to the learning experience. Encourage students to explore and engage with this exciting addition to the platform. Below is the feature list.\n\n{features}"
+            "prompt_template": "Craft a Facebook post with same format as used by Facebook announcing a new experiment available on Virtual Labs. Describe the {experiment}, its objectives, and how it contributes to the learning experience. Encourage students to explore and engage with this exciting addition to the platform. Below is the feature list.\n\n{features}"
         },
         {
             "name": "Tool Announcement",

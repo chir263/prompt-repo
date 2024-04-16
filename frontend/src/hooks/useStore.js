@@ -13,6 +13,17 @@ const useStore = create((set) => ({
   },
   setCurrentPrompt: (newCurrentPrompt) =>
     set({ currentPrompt: newCurrentPrompt }),
+
+  result: "Nothing",
+  setResult: (newResult) => set({ result: newResult }),
+
+  isResultBoxVisible: false,
+  setResultBoxVisible: (newResultBoxVisible) =>
+    set({ isResultBoxVisible: newResultBoxVisible }),
+
+  promptLoading: false,
+  setPromptLoading: (newPromptLoading) =>
+    set({ promptLoading: newPromptLoading }),
 }));
 
 export default useStore;

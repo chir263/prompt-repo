@@ -4,13 +4,14 @@ import {
   NavBar,
   PromptTemplateComponent,
   PromptPreviewComponent,
+  ResultModal,
 } from "./components";
 import { useEffect, useRef } from "react";
 import { USER_API } from "./utils/config_data";
 import useStore from "./hooks/useStore";
 import { get } from "./utils/requests";
 import { Tree } from "react-arborist";
-import { getPromptTree } from "./utils/config_data";
+import { getPromptTree, getFormattedPrompt } from "./utils/config_data";
 import Node from "./components/TreeNode";
 
 function Main() {
@@ -19,25 +20,13 @@ function Main() {
   const promptTree = useStore((state) => state.promptTree);
   const setPromptTree = useStore((state) => state.setPromptTree);
   const currentPrompt = useStore((state) => state.currentPrompt);
+  const isResultBoxVisible = useStore((state) => state.isResultBoxVisible);
   const promptRef = useRef(null);
   const textRef = useRef(null);
 
-  const getPrompt = () => {
-    let prompt = currentPrompt?.master_prompt || "";
-    prompt += "\n\n";
-    prompt += currentPrompt.prompt?.prompt_template || "";
-
-    Object.keys(currentPrompt.prompt?.placeholders || {}).forEach((key) => {
-      const value = currentPrompt.prompt.placeholders[key];
-      prompt = prompt.replaceAll("{" + key + "}", value);
-    });
-
-    return prompt || "";
-  };
-
   useEffect(() => {
     if (promptRef.current && textRef.current) {
-      promptRef.current.value = getPrompt();
+      promptRef.current.value = getFormattedPrompt(currentPrompt);
       promptRef.current.rows = 1;
       promptRef.current.rows = Math.ceil(promptRef.current.scrollHeight / 20);
 
@@ -58,6 +47,7 @@ function Main() {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
+      {isResultBoxVisible && <ResultModal />}
       <div className="flex">
         <NavBar />
       </div>
