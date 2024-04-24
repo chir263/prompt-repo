@@ -24,6 +24,12 @@ const useStore = create((set) => ({
   promptLoading: false,
   setPromptLoading: (newPromptLoading) =>
     set({ promptLoading: newPromptLoading }),
+
+  role: "user",
+  setRole: (newRole) => set({ role: newRole }),
+
+  treeReff: null,
+  setTreeReff: (newTreeReff) => set({ treeReff: newTreeReff }),
 }));
 
 export default useStore;

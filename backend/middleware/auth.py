@@ -11,11 +11,15 @@ def auth_required(f):
             return jsonify({'error': 'Access token missing'}), 401
         
         user = get_user(access_token)
-        users = get_user_config()["users"]
-
+        cnfig = get_user_config()
+        users = cnfig["users"]
 
         if user["login"] not in users:
             return jsonify({'error': 'Unauthorized user'}), 401
+        role = "user"
 
-        return f(*args, **kwargs)
+        if user["login"] in cnfig["admins"]:
+            role = "admin"
+
+        return f(*args, role=role, **kwargs)
     return decorated_function

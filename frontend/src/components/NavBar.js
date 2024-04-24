@@ -4,6 +4,7 @@ import useStore from "../hooks/useStore";
 
 const NavBar = () => {
   const userInfo = useStore((state) => state.user);
+  const role = useStore((state) => state.role);
   const getUser = () => {
     const name = userInfo?.login;
     if (name) return name;
@@ -18,7 +19,9 @@ const NavBar = () => {
           <div af-el="nav-title" className="text-block">
             Prompt Repository
           </div>
+
           <div style={{ float: "right", marginLeft: "auto" }}>
+            <span className="text-white text-lg mr-2">{role}</span>
             <button
               className="logout-button"
               onClick={() => {

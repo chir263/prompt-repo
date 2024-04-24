@@ -1,13 +1,7 @@
 import "../css/App.css";
 import { useEffect, useRef } from "react";
 import useStore from "../hooks/useStore";
-import MDEditor, {
-  commands,
-  ICommand,
-  TextState,
-  TextAreaTextApi,
-} from "@uiw/react-md-editor";
-import { getFormattedPrompt } from "../utils/config_data";
+import MDEditor from "@uiw/react-md-editor";
 
 const ResultModal = () => {
   const promptRef = useRef(null);

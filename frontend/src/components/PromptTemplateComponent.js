@@ -9,6 +9,7 @@ const PromptTemplateComponent = ({ textRef }) => {
   const [placeholder, setPlaceholder] = useState("");
   const setCurrentPrompt = useStore((state) => state.setCurrentPrompt);
   const currentPrompt = useStore((state) => state.currentPrompt);
+  const role = useStore((state) => state.role);
 
   const save = async () => {
     const response = await post(PROMPT_API + "/save_prompt", {
@@ -25,12 +26,14 @@ const PromptTemplateComponent = ({ textRef }) => {
       {currentPrompt.directory && (
         <span className="text-2xl text-gray-600">
           {currentPrompt.directory}
-          <button
-            className="text-green-500 p-2 hover:text-green-800"
-            onClick={save}
-          >
-            <MdSave />
-          </button>
+          {role === "admin" ? (
+            <button
+              className="text-green-500 p-2 hover:text-green-800"
+              onClick={save}
+            >
+              <MdSave />
+            </button>
+          ) : null}
         </span>
       )}
       {currentPrompt.category && (
@@ -45,16 +48,21 @@ const PromptTemplateComponent = ({ textRef }) => {
       <div className="flex">
         {currentPrompt?.prompt?.prompt_template !== "" ? (
           <textarea
-            className="flex flex-col p-2 border border-gray-300 w-full"
+            className="flex flex-col p-2 border border-gray-300 w-full overflow-auto"
             ref={textRef}
             value={currentPrompt.prompt?.prompt_template}
             onChange={(e) => {
+              e.preventDefault();
               let cp = { ...currentPrompt };
-              cp.prompt.prompt_template = e.target.value;
+              cp.prompt.prompt_template = e.target.value || " ";
               setCurrentPrompt(cp);
 
               e.target.rows = 1;
-              e.target.rows = Math.ceil(e.target.scrollHeight / 20);
+              e.target.rows = Math.min(
+                Math.max(Math.ceil(e.target.scrollHeight / 20), 5),
+                30
+              );
+              console.log(e.target.rows);
             }}
           ></textarea>
         ) : null}
@@ -87,8 +95,10 @@ const PromptTemplateComponent = ({ textRef }) => {
               </span>
               <textarea
                 className="border border-gray-300 p-2"
+                rows={5}
                 value={currentPrompt.prompt.placeholders[key]}
                 onChange={(e) => {
+                  e.preventDefault();
                   let cp = { ...currentPrompt };
                   cp.prompt.placeholders[key] = e.target.value;
                   setCurrentPrompt(cp);
@@ -101,24 +111,24 @@ const PromptTemplateComponent = ({ textRef }) => {
 
       <span className="text-lg text-gray-600 mt-4">{"Add placeholder"}</span>
       <div className="flex flex-row p-2">
-        <input
-          className="border border-gray-300 p-2"
-          placeholder="Placeholder"
-          value={placeholder}
-          onChange={(e) => setPlaceholder(e.target.value)}
-        />
-
-        <button
-          className="submit-button p-2 text-white"
-          onClick={() => {
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
             if (!placeholder) return;
             let cp = { ...currentPrompt };
             cp.prompt.placeholders[placeholder] = "";
             setCurrentPrompt(cp);
           }}
         >
-          {"Add"}
-        </button>
+          <input
+            className="border border-gray-300 p-2"
+            placeholder="Placeholder"
+            value={placeholder}
+            onChange={(e) => setPlaceholder(e.target.value)}
+          />
+
+          <button className="submit-button p-2 text-white">{"Add"}</button>
+        </form>
       </div>
     </>
   );

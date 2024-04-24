@@ -1,27 +1,32 @@
 {
-  "master_prompt": "Please ensure that all generated content adheres to the following guidelines:\n\n1. Maintain professionalism and accuracy in all posts.\n2. Avoid any content that may be considered offensive, inflammatory, or misleading.\n3. Double-check facts and statistics mentioned in the posts.\n4. Ensure clarity and coherence in language and messaging.\n5. Tailor the content to the target audience's interests and preferences.\n6. Review generated content for grammar, spelling, and punctuation errors.\n\nAfter generating content, please review it to ensure it meets these criteria before publishing.",
-  "prompts": [
-    {
-      "name": "Web tool",
-      "placeholders": {
-        "experiment": "experiment name and description",
-        "features": "1. Excellent UI"
-      },
-      "prompt_template": "Craft a Facebook post with same format as used by Facebook announcing a new experiment available on Virtual Labs. Describe the {experiment}, its objectives, and how it contributes to the learning experience. Encourage students to explore and engage with this exciting addition to the platform. Below is the feature list.\n\n{features}"
-    },
-    {
-      "name": "Python package",
-      "placeholders": {
-        "tool": "tool or feature name"
-      },
-      "prompt_template": "Write a Facebook post announcing a new tool or feature introduced on Virtual Labs. Highlight the {tool}'s functionality and benefits, and how it enhances the user experience. Encourage users to try out the new {tool} and provide feedback.\n\n"
-    },
-    {
-      "name": "VS code extension",
-      "placeholders": {
-        "tool": "tool or feature name"
-      },
-      "prompt_template": "Write a Facebook post announcing a new tool or feature introduced on Virtual Labs. Highlight the {tool}'s functionality and benefits, and how it enhances the user experience. Encourage users to try out the new {tool} and provide feedback.\n\n"
-    }
-  ]
+    "master_prompt": "Please ensure that all generated content adheres to the following guidelines:\n\n1. Maintain professionalism and accuracy in all posts.\n2. Avoid any content that may be considered offensive, inflammatory, or misleading.\n3. Double-check facts and statistics mentioned in the posts.\n4. Ensure clarity and coherence in language and messaging.\n5. Tailor the content to the target audience's interests and preferences.\n6. Review generated content for grammar, spelling, and punctuation errors.\n\nAfter generating content, please review it to ensure it meets these criteria before publishing.",
+    "prompts": [
+        {
+            "name": "Web tool",
+            "placeholders": {
+                "code_modules": "env: Environment variables for the project.\nrequirements.txt: Python dependencies for the Flask App.\nserver.py: Flask App with blueprints for search and insert functionalities.\nblueprints/insert_doc.py: Handles insert/update/delete requests, Google OAuth authentication, and interactions with Google Drive.\nblueprints/search_doc.py: Handles search requests for documents in Qdrant Vector Database.\nutils: Contains utility modules for document insertion, deletion, and parsing.\ntemplates: HTML templates for the Insert Page.\nstatic: Static files for the Insert Page.\nsecrets: Contains Google OAuth client and service account secrets.\nsearch-page-react: React App for the Search Page.",
+                "extras": "Supported Document Types\nFollowing document formats are supported in Document Search tool, they are given in form of table.\n\nSerial No\tDocument Type\tFormat\tURL Template\tAccessibility\n1\tGithub Markdown\tmd\thttps://github.com/<ORGANISATION_NAME>/<REPO_NAME>/blob/<BRANCH>/PATH/TO/DOCUMENT.md\nhttps://github.com/virtual-labs/app-exp-create-web/blob/master/docs/user-doc.md\tpublic/private\n2\tGoogle Document\tgdoc\thttps://docs.google.com/document/d/<DOC_ID>\nhttps://docs.google.com/document/d/1ye4X5LcUlicv4Q-VE7pxYrjW8yj0Uep6EO3gZpR4SDw\tpublic/private\n3\tGoogle Spreadsheet\txlsx\thttps://docs.google.com/spreadsheets/d/<DOC_ID>\nhttps://docs.google.com/spreadsheets/d/1SUOs97mV0MUgad0shGq2Kfpl24RHyvSjtbzR4VrrRjM\tpublic/private\n4\tGoogle Drive PDF\tpdf\thttps://drive.google.com/file/d/<DOC_ID>\nhttps://drive.google.com/file/d/1kuPsaiC_3oDOrR8TWc4OGGzaapKaw1Qw\tpublic/private\n5\tGithub ORG mode\torg\thttps://github.com/<ORGANISATION_NAME>/<REPO_NAME>/blob/<BRANCH>/PATH/TO/DOCUMENT.org\nhttps://github.com/virtual-labs/ph3-lab-mgmt/blob/master/docs/lab-build-process.org\tpublic/private\n6\tGithub File\t-\thttps://github.com/<ORGANISATION_NAME>/<REPO_NAME>/blob/<BRANCH>/PATH/TO/file.extension\nhttps://github.com/virtual-labs/app-exp-create-web/blob/master/docs/user-doc.md\tpublic/private\n7*\tDrive File\t-\thttps://drive.google.com/file/d/<DOC_ID>\nhttps://drive.google.com/file/d/1kuPsaiC_3oDOrR8TWc4OGGzaapKaw1Qw\tpublic/private\n8*\tLink\t-\tAny URL",
+                "future_updates": "Enhancing Page Title search with a semantic model used for section searches can improve precision. Further optimization with Binary Quantization and prioritizing subheadings in the embedding template can boost accuracy. Introducing a theme feature for search and insert pages would refine user experience and organization, aiming to streamline functionality and enhance usability.",
+                "t_design_decisions": "Firstly, we chose Qdrant, a specialized search engine, to store and retrieve documents quickly and accurately. This is crucial when managing a large number of documents efficiently.\n\nAdditionally, we implemented a scoring system on the Search page to improve the relevance of search results. By prioritizing words that appear frequently in documents, users can find relevant information more easily.\n\nSecurity is a top priority. To protect access to the Insert/Update Page, we integrated Google OAuth authentication. This ensures that only authorized users from our organization can access sensitive features, maintaining data integrity and confidentiality.\n\nFurthermore, our tool supports documents in various formats, which are standardized into consistent chunks. This simplifies processing and indexing, making the system more efficient overall.\n\nBatch processing capabilities have been added to streamline document insertion, particularly useful when dealing with large volumes of documents. This feature optimizes performance by efficiently managing the insertion process.\n\nWe've also enhanced search capabilities by indexing specific fields within documents, enabling advanced filtering options. This improves the search experience by helping users quickly locate desired information.\n\nIn terms of accessibility, we distinguish between public and private documents. Public documents are accessible to all users, while private documents are restricted to authorized personnel within our organization.\n\nMoreover, our tool seamlessly integrates with Google Drive and GitHub, adapting to different document hosting environments. This ensures maximum accessibility and usability across platforms.",
+                "technical_overview_of_tool": "The Virtual Labs Document Search Tool is designed with two distinct user interface components: the publicly accessible Search Page developed in ReactJS with TailwindCSS, and the authenticated Insert/Update Page using HTML, CSS, and VanillaJS.  It uses google OAuth for authentication. backend is developed in flask to handle requests and document processing. Qdrant vector database is used to store vector embeddings.",
+                "technical_workflow_of_tool": "The Virtual Labs Document Search Tool caters to two main user types. First, the Document Searcher, who utilizes the search function to access specific document sections via a user-friendly interface and a public API. Second, the Document Manager, who, after logging in with Google credentials, accesses a dedicated page within the Flask application. Here, they interact with a table displaying documents and checkboxes for actions like updating or deleting selected documents. Additionally, a search bar facilitates easy location of specific document titles. Users can also add Google Drive folders or insert new documents via modal panes with form submissions.",
+                "tool_name": "Document Search"
+            },
+            "prompt_template": "You are a skilled software professional who works for Virtual Labs. \nA brief description about organisation.\nVirtual Labs is a project initiated by the Ministry of Education, Government of India, under the National Mission on Education through Information and Communication Technology. The project aims to provide remote access to Laboratories in various disciplines of Science and Engineering for students at all levels from undergraduate to research.\n\nWrite a neat and precise technical documentation in markdown format for a new web tool called \"{tool_name}\". It is used by developer who will maintain and develop this tool. \n\n- Title should be # or h1. Add a brief paragraph about what this document is going to tell user below title. \n- Add content table after title with links []() for easy navigation to each heading.\n- Ensure that all required headings in place. \n\nInformation about the tool is given in between <INFO> and </INFO> tokens.\n\n<INFO>\nhere is the technical overview of the tool  {technical_overview_of_tool} \n\nhere is the technical workflow of the tool\n {technical_workflow_of_tool} \n\nthese design decisions were made\n {t_design_decisions} \n\nthese are some future plans for the tool.\n {future_updates}\n\ncode modules for this project are as follows:\n{code_modules}\n\n{extras}\n</INFO>\n\nThis documentation should cover every bit of information given above with precise heading and **detailed description**. Ensure that nothing is left. Use bullet points for better user understanding wherever necessary. A basic layout is given below.\n\nIntroduction: Introduction about tool and its technical architecture.\nHow {tool_name} Works: technical workflow for this tool\nDesign Decisions: design decisions implemented in this tool\nCode Modules: code modules\nTechnology Stack: tech stack used\n--%----%--------\nDeployment: deployment procedure and stack\nFuture Updates and Features: upcoming updates and feature\n\nYou can add more headings with appropriate titles, content and ordering after `Technology Stack`.\nAvoid generating additional information which is not mentioned. Leave heading(s) with comment \"add here\" if you are unable to find relevant content regarding that heading with provided information. \n\n"
+        },
+        {
+            "name": "Python package",
+            "placeholders": {
+                "tool": "tool or feature name"
+            },
+            "prompt_template": "Write a Facebook post announcing a new tool or feature introduced on Virtual Labs. Highlight the {tool}'s functionality and benefits, and how it enhances the user experience. Encourage users to try out the new {tool} and provide feedback.\n\n"
+        },
+        {
+            "name": "VS code extension",
+            "placeholders": {
+                "tool": "tool or feature name"
+            },
+            "prompt_template": "Write a Facebook post announcing a new tool or feature introduced on Virtual Labs. Highlight the {tool}'s functionality and benefits, and how it enhances the user experience. Encourage users to try out the new {tool} and provide feedback.\n\n"
+        }
+    ]
 }

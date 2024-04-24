@@ -1,33 +1,46 @@
 {
-  "Social Media Prompts": {
-    "description": "Generate social media posts for Facebook, Twitter, Instagram, and LinkedIn.",
-    "category": [
-      {
-        "name": "Facebook",
-        "prompt_list": ["Experiment announcement", "Tool announcement"],
-        "prompt_file": "./prompts/social-media-post/facebook.json"
-      },
-      {
-        "name": "Twitter",
-        "prompt_list": ["Experiment announcement", "Tool announcement"],
-        "prompt_file": "./prompts/social-media-post/twitter.json"
-      }
-    ]
-  },
-
-  "Documentation": {
-    "description": "Generate documentation for your project.",
-    "category": [
-      {
-        "name": "Developer Guide",
-        "prompt_list": ["Web tool", "Python package", "VS code extension"],
-        "prompt_file": "./prompts/documentation/developer-guide.json"
-      },
-      {
-        "name": "User Guide",
-        "prompt_list": ["Web tool", "Python package", "VS code extension"],
-        "prompt_file": "./prompts/documentation/user-guide.json"
-      }
-    ]
-  }
+    "Social Media Prompts": {
+        "description": "Generate social media posts for Facebook, Twitter, Instagram, and LinkedIn.",
+        "category": [
+            {
+                "name": "Facebook",
+                "prompt_list": [
+                    "Experiment announcement",
+                    "Tool announcement"
+                ],
+                "prompt_file": "./prompts/social-media-post/facebook.json"
+            },
+            {
+                "name": "Twitter",
+                "prompt_list": [
+                    "Experiment announcement",
+                    "Tool announcement"
+                ],
+                "prompt_file": "./prompts/social-media-post/twitter.json"
+            }
+        ]
+    },
+    "Documentation": {
+        "description": "Generate documentation for your project.",
+        "category": [
+            {
+                "name": "Developer Guide",
+                "prompt_list": [
+                    "Web tool",
+                    "Python package",
+                    "VS code extension"
+                ],
+                "prompt_file": "./prompts/documentation/developer-guide.json"
+            },
+            {
+                "name": "User Guide",
+                "prompt_list": [
+                    "Web tool",
+                    "Python package",
+                    "VS code extension"
+                ],
+                "prompt_file": "./prompts/documentation/user-guide.json"
+            }
+        ]
+    }
 }

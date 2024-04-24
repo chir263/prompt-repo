@@ -1,6 +1,10 @@
 from utils.config import get_prompt_config, load_json, save_json
 from uuid import uuid4
 import json
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def get_tree():
     prompt_config = get_prompt_config()
@@ -20,6 +24,7 @@ def get_tree():
             child['children'] = []
             child['type'] = "category"
             child["file"] = category["prompt_file"]
+            child["directory"] = key
             for prompt in category["prompt_list"]:
                 child['children'].append({
                     'id': str(uuid4()),
@@ -58,4 +63,54 @@ def save_prompt_(prompt, prompt_file, prompt_name):
         print(f"Error saving prompt: {e}")
         return {"status": "error", "message": str(e)}
 
+def add_prompt_template_(category_file, template_name, dir_name):
+    try:
+        category_file_l = '.' + category_file
+        prompt_json = load_json(category_file_l)
+        prompt_json["prompts"].append({
+            "name": template_name,
+            "placeholders": {},
+            "prompt_template": "Hi! I'm a template!" 
+        })
+        save_json(category_file_l, prompt_json)
 
+        p_config = get_prompt_config()
+
+        for key, value in p_config.items():
+            if key.lower() == dir_name.lower():
+                for i in range(len(value["category"])):
+                    if value["category"][i]["prompt_file"] == category_file:
+                        p_config[key]["category"][i]["prompt_list"].append(template_name)
+                        break
+                save_json(os.environ.get('PROMPT_CONFIG_PATH'), p_config)
+                break   
+
+        return {"status": "success"}
+    except Exception as e:
+        print(f"Error saving prompt: {e}")
+        return {"status": "error", "message": str(e)}
+
+def delete_prompt_template_(category_file, template_name, dir_name):
+    try:
+        category_file_l = '.' + category_file
+        prompt_json = load_json(category_file_l)
+        prompt_json["prompts"] = list(filter(lambda p: p["name"].lower() != template_name.lower(), prompt_json["prompts"]))
+        save_json(category_file_l, prompt_json)
+
+        p_config = get_prompt_config()
+
+        for key, value in p_config.items():
+            if key == dir_name:
+                for category in value["category"]:
+
+                    if category["prompt_file"] == category_file:
+                        category["prompt_list"] = list(filter(lambda p: p.lower() != template_name.lower(), category["prompt_list"]))
+                        break
+            
+                save_json(os.environ.get('PROMPT_CONFIG_PATH'), p_config)
+                break
+
+        return {"status": "success"}
+    except Exception as e:
+        print(f"Error saving prompt: {e}")
+        return {"status": "error", "message": str(e)}

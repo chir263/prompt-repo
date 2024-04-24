@@ -56,7 +56,7 @@ function validateURL(url) {
 async function getPromptTree() {
   try {
     const response = await get(PROMPT_API + "/tree");
-    return response;
+    return [response.tree, response.role];
   } catch (error) {
     console.error(error);
     return [];

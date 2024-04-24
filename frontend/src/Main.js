@@ -6,6 +6,9 @@ import {
   PromptPreviewComponent,
   ResultModal,
 } from "./components";
+
+import { TreeComponent } from "./components/TreeComponent";
+
 import { useEffect, useRef } from "react";
 import { USER_API } from "./utils/config_data";
 import useStore from "./hooks/useStore";
@@ -14,6 +17,16 @@ import { Tree } from "react-arborist";
 import { getPromptTree, getFormattedPrompt } from "./utils/config_data";
 import Node from "./components/TreeNode";
 
+const preeprocessTree = (tree) => {
+  for (let i = 0; i < tree.length; i++) {
+    tree[i].isOpen = false;
+    if (tree[i].children) {
+      tree[i].children = preeprocessTree(tree[i].children);
+    }
+  }
+  return tree;
+};
+
 function Main() {
   const setUser = useStore((state) => state.setUser);
   const accessToken = useStore((state) => state.accessToken);
@@ -21,8 +34,11 @@ function Main() {
   const setPromptTree = useStore((state) => state.setPromptTree);
   const currentPrompt = useStore((state) => state.currentPrompt);
   const isResultBoxVisible = useStore((state) => state.isResultBoxVisible);
+  const setRole = useStore((state) => state.setRole);
+  const setTreeReff = useStore((state) => state.setTreeReff);
   const promptRef = useRef(null);
   const textRef = useRef(null);
+  const treeRef = useRef(null);
 
   useEffect(() => {
     if (promptRef.current && textRef.current) {
@@ -39,12 +55,27 @@ function Main() {
     async function fetchData() {
       const response = await get(USER_API, accessToken);
       setUser(response);
-      const prompT = await getPromptTree();
-      setPromptTree(prompT);
+      let [prompT, role] = await getPromptTree();
+      setRole(role);
+
+      const tree = {
+        id: "root",
+        name: "root",
+        children: prompT,
+      };
+
+      setPromptTree(preeprocessTree(tree));
     }
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (treeRef.current) {
+      setTreeReff(treeRef.current);
+    }
+  }, [promptTree]);
+
+  console.log(promptTree);
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
       {isResultBoxVisible && <ResultModal />}
@@ -52,15 +83,21 @@ function Main() {
         <NavBar />
       </div>
       <div className="flex flex-1 flex-row flex-block overflow-hidden">
-        <div className="flex w-1/5 bg-gray-200 overflow-y-hidden p-2">
-          <Tree
-            data={promptTree}
-            openByDefault={false}
-            indent={12}
-            rowHeight={35}
-          >
-            {Node}
-          </Tree>
+        <div className="flex w-1/5 bg-gray-200 overflow-x-hidden overflow-y-auto p-2">
+          {promptTree.length != 0 ? (
+            // <Tree
+            //   initialData={promptTree}
+            //   openByDefault={false}
+            //   indent={12}
+            //   rowHeight={35}
+            //   className="h-full"
+            //   ref={treeRef}
+            // >
+            //   {Node}
+            // </Tree>
+
+            <TreeComponent data={promptTree} />
+          ) : null}
         </div>
         <div className="flex flex-col w-2/5 p-2 border-r border-gray-300 h-full overflow-auto">
           {currentPrompt.directory ? (

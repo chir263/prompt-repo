@@ -12,9 +12,11 @@
         {
             "name": "Tool Announcement",
             "placeholders": {
-                "tool": "tool or feature name"
+                "extras": "this tool is an internal tool and will be used by virtual labs staff and content creators.",
+                "features": "1. It allows users to search documents like tool documentations, hr docs and many more.\n2. It allows virtual labs staff to add documents of different formats (pdf,xlsx, markdown, org, pdf, docx) and search across them.",
+                "tool": "Document Search"
             },
-            "prompt_template": "Write a Facebook post announcing a new tool or feature introduced on Virtual Labs. Highlight the {tool}'s functionality and benefits, and how it enhances the user experience. Encourage users to try out the new {tool} and provide feedback.\n\n"
+            "prompt_template": "Write a Facebook post announcing a new tool introduced on Virtual Labs i.e {tool}. Highlight the {tool}'s functionality and benefits, and how it enhances the user experience. Encourage users to try out the new {tool} and provide feedback.\nthe tool has following features :- \n{features}\n\n{extras}"
         }
     ]
 }

@@ -14,6 +14,8 @@ const PromptPreviewComponent = ({ promptRef }) => {
   const promptLoading = useStore((state) => state.promptLoading);
 
   const run = async () => {
+    if (promptLoading) return;
+
     setPromptLoading(true);
 
     const response = await post(PROMPT_API + "/generate", {
@@ -24,6 +26,7 @@ const PromptPreviewComponent = ({ promptRef }) => {
     setPromptLoading(false);
     setResultBoxVisible(true);
   };
+
   return (
     <>
       <span className="flex text-2xl text-gray-600">
