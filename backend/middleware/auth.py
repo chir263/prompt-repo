@@ -10,16 +10,17 @@ def auth_required(f):
         if not access_token:
             return jsonify({'error': 'Access token missing'}), 401
         
-        user = get_user(access_token)
-        cnfig = get_user_config()
-        users = cnfig["users"]
+        current_user = get_user(access_token)
+        users = get_user_config()
+        
+        valid_user = False
+        role = "User"
+        for user in users:
+            if user["Github Account"] == current_user["login"]:
+                role = user["Role"]
+                valid_user = True
 
-        if user["login"] not in users:
+        if not valid_user:
             return jsonify({'error': 'Unauthorized user'}), 401
-        role = "user"
-
-        if user["login"] in cnfig["admins"]:
-            role = "admin"
-
         return f(*args, role=role, **kwargs)
     return decorated_function

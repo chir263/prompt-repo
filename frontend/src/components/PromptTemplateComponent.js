@@ -10,15 +10,26 @@ const PromptTemplateComponent = ({ textRef }) => {
   const setCurrentPrompt = useStore((state) => state.setCurrentPrompt);
   const currentPrompt = useStore((state) => state.currentPrompt);
   const role = useStore((state) => state.role);
+  const setScreenLoader = useStore((state) => state.setScreenLoader);
 
   const save = async () => {
-    const response = await post(PROMPT_API + "/save_prompt", {
-      prompt: currentPrompt.prompt,
-      prompt_file: currentPrompt.file,
-      prompt_name: currentPrompt.prompt.name,
-    });
-    if (response.status === "success") {
-      alert("Prompt saved successfully");
+    try {
+      setScreenLoader(true);
+      const response = await post(PROMPT_API + "/save_prompt", {
+        prompt: currentPrompt.prompt,
+        prompt_dir: currentPrompt.directory,
+        prompt_category: currentPrompt.category,
+        prompt_name: currentPrompt.prompt.name,
+      });
+      if (response.status === "success") {
+        alert("Prompt saved successfully");
+      } else {
+        alert("Prompt could not be saved: ", JSON.stringify(response));
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setScreenLoader(false);
     }
   };
   return (
@@ -26,7 +37,7 @@ const PromptTemplateComponent = ({ textRef }) => {
       {currentPrompt.directory && (
         <span className="text-2xl text-gray-600">
           {currentPrompt.directory}
-          {role === "admin" ? (
+          {role.toLowerCase() === "admin" ? (
             <button
               className="text-green-500 p-2 hover:text-green-800"
               onClick={save}

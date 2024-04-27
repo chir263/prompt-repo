@@ -13,24 +13,29 @@ const TreeNode = ({ node, depth }) => {
   const setPromptTree = useStore((state) => state.setPromptTree);
   const promptTree = useStore((state) => state.promptTree);
   const role = useStore((state) => state.role);
+  const setScreenLoader = useStore((state) => state.setScreenLoader);
 
   const getNodeStyle = (node) => {
-    console.log(node.name, currentPrompt.prompt.name);
-    console.log(node.file, currentPrompt.file);
-    if (
-      node.name.toLowerCase() ===
-        (currentPrompt.prompt || { name: "" }).name.toLowerCase() &&
-      node.file === currentPrompt.file
-    ) {
+    const isCurrentPrompt = (node_) => {
+      return (
+        node_.name.toLowerCase() ===
+          (currentPrompt.prompt || { name: "" }).name.toLowerCase() &&
+        currentPrompt.directory === node_.directory &&
+        currentPrompt.category === node_.category
+      );
+    };
+
+    if (isCurrentPrompt(node)) {
       return "prompt-style selected cursor-default	";
     }
-    return isLeaf(node)
-      ? "prompt-style cursor-default	"
-      : "dir-style cursor-default	";
+    if (node.type === "directory")
+      return "dir-style bg-gray-500 cursor-default	";
+    if (node.type === "template") return "prompt-style cursor-default	";
+    if (node.type === "category") return "dir-style bg-gray-400 cursor-default	";
   };
 
   const getAddButton = (node_) => {
-    if (role !== "admin") return null;
+    if (role.toLowerCase() !== "admin") return null;
 
     if (node_.type === "category") {
       return (
@@ -45,12 +50,70 @@ const TreeNode = ({ node, depth }) => {
           <MdAddCircle className="text-xl hover:text-gray-200" />
         </button>
       );
+    } else if (node_.type === "directory") {
+      return (
+        <button
+          className="float-end"
+          onClick={async (e) => {
+            e.stopPropagation();
+            await addPromptCategory(node_);
+          }}
+        >
+          <MdAddCircle className="text-xl hover:text-gray-200" />
+        </button>
+      );
     }
     return null;
   };
 
+  const addPromptCategory = async (node_) => {
+    const dir_name = node_.name;
+    const category_name = prompt("Please enter your Category Name:");
+    if (category_name != null && category_name.trim() !== "") {
+      if (category_name.includes(",")) {
+        alert("Category name cannot contain commas");
+        return;
+      }
+      try {
+        setScreenLoader(true);
+
+        const response = await post(PROMPT_API + "/create_prompt_category", {
+          dir_name: dir_name,
+          category_name: category_name,
+        });
+
+        if (response.status === "success") {
+          alert("Category created successfully");
+          let newTree = JSON.parse(JSON.stringify(promptTree));
+          for (let i = 0; i < newTree.children.length; i++) {
+            if (newTree.children[i].name === dir_name) {
+              newTree.children[i].isOpen = true;
+              newTree.children[i].children.push({
+                name: category_name,
+                id: Math.random().toString(36).substr(2, 9),
+                isLeaf: false,
+                type: "category",
+                children: [],
+                directory: dir_name,
+              });
+              break;
+            }
+          }
+
+          setPromptTree(newTree);
+        } else {
+          alert("Error creating category: " + JSON.stringify(response));
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setScreenLoader(false);
+      }
+    }
+  };
+
   const getDeleteButton = (node_) => {
-    if (role !== "admin") return null;
+    if (role.toLowerCase() !== "admin") return null;
 
     if (node_.type === "prompt") {
       return (
@@ -70,15 +133,22 @@ const TreeNode = ({ node, depth }) => {
   };
 
   const openPrompt = async (node) => {
-    let response = await post(PROMPT_API + "/get_prompt", {
-      prompt_file: node.file,
-      prompt_name: node.name,
-    });
-    response.directory = node.directory;
-    response.category = node.category;
-    response.file = node.file;
-    console.log(response);
-    setCurrentPrompt(response);
+    try {
+      setScreenLoader(true);
+      let response = await post(PROMPT_API + "/get_prompt", {
+        prompt_dir: node.directory,
+        prompt_category: node.category,
+        prompt_name: node.name,
+      });
+      response.directory = node.directory;
+      response.category = node.category;
+      console.log(response);
+      setCurrentPrompt(response);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setScreenLoader(false);
+    }
   };
 
   const toggledTree = (node, id) => {
@@ -134,27 +204,34 @@ const TreeNode = ({ node, depth }) => {
           return;
         }
       }
-
-      const resp = await post(PROMPT_API + "/add_prompt_template", {
-        category_file: node_.file,
-        template_name: name,
-        dir_name: node_.directory,
-      });
-
-      if (resp.status === "success") {
-        alert("Prompt Template added successfully");
-        let newTree = JSON.parse(JSON.stringify(promptTree));
-        newTree = addLeaf(newTree, node_.id, {
-          name: name,
-          id: Math.random().toString(36).substr(2, 9),
-          isLeaf: true,
-          type: "prompt",
-          file: node_.file,
-          directory: node_.directory,
-          category: node.name,
+      try {
+        setScreenLoader(true);
+        const resp = await post(PROMPT_API + "/add_prompt_template", {
+          category_name: node_.name,
+          template_name: name,
+          dir_name: node_.directory,
+          template: "Hi! I am a new prompt template.",
         });
 
-        setPromptTree(newTree);
+        if (resp.status === "success") {
+          alert("Prompt Template added successfully");
+          let newTree = JSON.parse(JSON.stringify(promptTree));
+          newTree = addLeaf(newTree, node_.id, {
+            name: name,
+            id: Math.random().toString(36).substr(2, 9),
+            isLeaf: true,
+            type: "prompt",
+            file: node_.file,
+            directory: node_.directory,
+            category: node.name,
+          });
+
+          setPromptTree(newTree);
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setScreenLoader(false);
       }
     }
   };
@@ -165,18 +242,27 @@ const TreeNode = ({ node, depth }) => {
     );
     if (!conf) return;
 
-    const resp = await post(PROMPT_API + "/delete_prompt_template", {
-      category_file: node_.file,
-      template_name: node.name,
-      dir_name: node_.directory,
-    });
+    try {
+      setScreenLoader(true);
+      const resp = await post(PROMPT_API + "/delete_prompt_template", {
+        category_name: node_.category,
+        template_name: node.name,
+        dir_name: node_.directory,
+      });
 
-    if (resp.status === "success") {
-      alert("Prompt Template deleted successfully");
-      let newTree = JSON.parse(JSON.stringify(promptTree));
-      newTree = deleteLeaf(newTree, node_.id);
+      if (resp.status === "success") {
+        alert("Prompt Template deleted successfully");
+        let newTree = JSON.parse(JSON.stringify(promptTree));
+        newTree = deleteLeaf(newTree, node_.id);
 
-      setPromptTree(newTree);
+        setPromptTree(newTree);
+      } else {
+        alert("Error deleting prompt template: " + JSON.stringify(resp));
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setScreenLoader(false);
     }
   };
 
@@ -191,13 +277,13 @@ const TreeNode = ({ node, depth }) => {
         onClick={() => {
           let newTree = JSON.parse(JSON.stringify(promptTree));
           setPromptTree(toggledTree(newTree, node.id));
-          if (node.type === "prompt") {
+          if (node.type === "template") {
             openPrompt(node);
           }
         }}
       >
         <img
-          src={isLeaf(node) ? PromptIcon : RepoIcon}
+          src={node.type === "prompt" ? PromptIcon : RepoIcon}
           alt="prompt"
           className="w-5 h-5 mr-2"
         />
@@ -217,8 +303,51 @@ const TreeNode = ({ node, depth }) => {
 };
 
 export const TreeComponent = ({ data }) => {
+  const setScreenLoader = useStore((state) => state.setScreenLoader);
+  const setPromptTree = useStore((state) => state.setPromptTree);
+  const role = useStore((state) => state.role);
+  const createPromptDirectory = async () => {
+    const name = prompt("Please enter Directory Name:");
+
+    if (name != null && name.trim() !== "") {
+      try {
+        setScreenLoader(true);
+        const response = await post(PROMPT_API + "/create_prompt_directory", {
+          dir_name: name,
+        });
+        if (response.status === "success") {
+          alert("Directory created successfully");
+          let newRoot = JSON.parse(JSON.stringify(data));
+          newRoot.children.push({
+            name: name,
+            id: Math.random().toString(36).substr(2, 9),
+            isLeaf: false,
+            type: "directory",
+            children: [],
+          });
+          setPromptTree(newRoot);
+        } else {
+          alert("Error creating directory: " + JSON.stringify(response));
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setScreenLoader(false);
+      }
+    }
+  };
+
   return (
     <div className="w-full mb-2 pb-2">
+      {role.toLowerCase() === "admin" ? (
+        <button
+          className="flex flex-row text-white bg-gray-400 rounded p-1 hover:bg-gray-500 active:bg-gray-600"
+          onClick={createPromptDirectory}
+        >
+          <MdAddCircle className="text-xl mr-1" />
+          Add Directory
+        </button>
+      ) : null}
       {data.children.map((node) => (
         <TreeNode key={node.id} node={node} depth={1} />
       ))}

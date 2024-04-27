@@ -28,8 +28,8 @@ const useStore = create((set) => ({
   role: "user",
   setRole: (newRole) => set({ role: newRole }),
 
-  treeReff: null,
-  setTreeReff: (newTreeReff) => set({ treeReff: newTreeReff }),
+  screenLoader: false,
+  setScreenLoader: (newScreenLoader) => set({ screenLoader: newScreenLoader }),
 }));
 
 export default useStore;

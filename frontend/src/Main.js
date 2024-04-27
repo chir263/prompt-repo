@@ -5,21 +5,21 @@ import {
   PromptTemplateComponent,
   PromptPreviewComponent,
   ResultModal,
+  TreeComponent,
+  ScreenLoader,
 } from "./components";
-
-import { TreeComponent } from "./components/TreeComponent";
 
 import { useEffect, useRef } from "react";
 import { USER_API } from "./utils/config_data";
 import useStore from "./hooks/useStore";
 import { get } from "./utils/requests";
-import { Tree } from "react-arborist";
 import { getPromptTree, getFormattedPrompt } from "./utils/config_data";
-import Node from "./components/TreeNode";
 
 const preeprocessTree = (tree) => {
   for (let i = 0; i < tree.length; i++) {
+    // preprocess code here
     tree[i].isOpen = false;
+
     if (tree[i].children) {
       tree[i].children = preeprocessTree(tree[i].children);
     }
@@ -35,10 +35,10 @@ function Main() {
   const currentPrompt = useStore((state) => state.currentPrompt);
   const isResultBoxVisible = useStore((state) => state.isResultBoxVisible);
   const setRole = useStore((state) => state.setRole);
-  const setTreeReff = useStore((state) => state.setTreeReff);
+  const screenLoader = useStore((state) => state.screenLoader);
+  const setScreenLoader = useStore((state) => state.setScreenLoader);
   const promptRef = useRef(null);
   const textRef = useRef(null);
-  const treeRef = useRef(null);
 
   useEffect(() => {
     if (promptRef.current && textRef.current) {
@@ -53,51 +53,42 @@ function Main() {
 
   useEffect(() => {
     async function fetchData() {
-      const response = await get(USER_API, accessToken);
-      setUser(response);
-      let [prompT, role] = await getPromptTree();
-      setRole(role);
+      try {
+        setScreenLoader(true);
+        // alert("fetching data");
+        const response = await get(USER_API, accessToken);
+        setUser(response);
+        let [prompT, role] = await getPromptTree();
+        setRole(role);
 
-      const tree = {
-        id: "root",
-        name: "root",
-        children: prompT,
-      };
+        const tree = {
+          id: "root",
+          name: "root",
+          children: prompT,
+        };
 
-      setPromptTree(preeprocessTree(tree));
+        setPromptTree(preeprocessTree(tree));
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setScreenLoader(false);
+      }
     }
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (treeRef.current) {
-      setTreeReff(treeRef.current);
-    }
-  }, [promptTree]);
-
   console.log(promptTree);
+
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
+      {screenLoader ? <ScreenLoader /> : null}
       {isResultBoxVisible && <ResultModal />}
       <div className="flex">
         <NavBar />
       </div>
       <div className="flex flex-1 flex-row flex-block overflow-hidden">
         <div className="flex w-1/5 bg-gray-200 overflow-x-hidden overflow-y-auto p-2">
-          {promptTree.length != 0 ? (
-            // <Tree
-            //   initialData={promptTree}
-            //   openByDefault={false}
-            //   indent={12}
-            //   rowHeight={35}
-            //   className="h-full"
-            //   ref={treeRef}
-            // >
-            //   {Node}
-            // </Tree>
-
-            <TreeComponent data={promptTree} />
-          ) : null}
+          {promptTree.children ? <TreeComponent data={promptTree} /> : null}
         </div>
         <div className="flex flex-col w-2/5 p-2 border-r border-gray-300 h-full overflow-auto">
           {currentPrompt.directory ? (
