@@ -138,3 +138,30 @@ class GoogleSheet:
             print("Row deleted successfully!")
         else:
             print("No matching record found to delete.")
+
+    def delete_rows(self, find, tab_name=""):
+        try:
+            if tab_name != "":
+                self.worksheet = self.spreadsheet.worksheet(tab_name)
+            records = self.get_all_records(tab_name=tab_name)
+        except gspread.exceptions.APIError:
+            self.re_init(tab_name=tab_name)
+            records = self.get_all_records(tab_name=tab_name)
+        
+        row_numbers = []
+        for i, record in enumerate(records, start=2):
+            flag = 1
+            for key, value in find.items():
+                if record[key] != value:
+                    flag = 0
+                    break
+            if flag:
+                row_numbers.append(i)
+    
+        if len(row_numbers):
+            print("Deleting",row_numbers)
+            for row_index in reversed(row_numbers):
+                self.worksheet.delete_rows(row_index)
+            print("Rows deleted successfully!")
+        else:
+            print("No matching record found to delete.")

@@ -162,7 +162,7 @@ def create_prompt_directory_(dir_name):
     if sheet.if_exists({"Prompt Directory": dir_name}, tab_name):
         return {"status": "error", "message": "Directory already exists"}
     else:
-        sheet.append_row([dir_name, ""], tab_name)
+        sheet.append_row(data=[dir_name, ""], tab_name=tab_name)
         return {"status": "success"}
     
 def create_prompt_category_(dir_name, category_name):
@@ -177,6 +177,32 @@ def create_prompt_category_(dir_name, category_name):
             return response
         category_list.append(category_name)
         category_str = ", ".join(category_list)
-        sheet.update_row("Prompt Directory", dir_name, [dir_name, category_str], tab_name)
+        sheet.update_row(find={"Prompt Directory": dir_name}, data=[dir_name, category_str], tab_name=tab_name)
         return {"status": "success"}
+
+def delete_prompt_category_(dir_name, category_name):
+    tab_name = "Prompt Directories"
+
+    isCategoryExists, category_list, response = check_category_exists_(category_name, dir_name)
+
+    if isCategoryExists:
+        category_list.remove(category_name)
+        category_str = ", ".join(category_list)
+        sheet.update_row(find={"Prompt Directory": dir_name}, data=[dir_name, category_str], tab_name=tab_name)
+
+        tab_name = "Prompt Templates"
+        sheet.delete_rows(find={"Prompt Directory": dir_name, "Category": category_name}, tab_name=tab_name)
+        return {"status": "success"}
+    else:
+        return response
     
+
+def delete_prompt_directory_(dir_name):
+    tab_name = "Prompt Directories"
+    if check_directory_exists_(dir_name):
+        sheet.delete_rows(find={"Prompt Directory": dir_name}, tab_name=tab_name)
+        tab_name = "Prompt Templates"
+        sheet.delete_rows(find={"Prompt Directory": dir_name}, tab_name=tab_name)
+        return {"status": "success"}
+    else:
+        return {"status": "error", "message": "Directory does not exist"}

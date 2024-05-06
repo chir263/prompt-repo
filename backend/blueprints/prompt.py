@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from controllers.prompt import get_tree, get_prompt_, save_prompt_, add_prompt_template_, delete_prompt_template_, create_prompt_directory_, create_prompt_category_ 
+from controllers.prompt import get_tree, get_prompt_, save_prompt_, add_prompt_template_, delete_prompt_template_, create_prompt_directory_, create_prompt_category_, delete_prompt_category_, delete_prompt_directory_
 from middleware.auth import auth_required
 from genai.gemeni import generate_response
 
@@ -63,3 +63,19 @@ def create_prompt_category(role):
         return jsonify({'error': 'Forbidden'}), 403
     req = request.get_json()
     return jsonify(create_prompt_category_(req['dir_name'], req['category_name']))
+
+@prompt_blueprint.route('/delete_prompt_category', methods=['POST'])
+@auth_required
+def delete_prompt_category(role):
+    if role.lower() != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
+    req = request.get_json()
+    return jsonify(delete_prompt_category_(req['dir_name'], req['category_name']))
+
+@prompt_blueprint.route('/delete_prompt_directory', methods=['POST'])
+@auth_required
+def delete_prompt_directory(role):
+    if role.lower() != 'admin':
+        return jsonify({'error': 'Forbidden'}), 403
+    req = request.get_json()
+    return jsonify(delete_prompt_directory_(req['dir_name']))

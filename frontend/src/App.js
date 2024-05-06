@@ -1,9 +1,7 @@
 // App.js or your main component where routes are defined
 import React from "react";
-// import { HashRouter as Router, Route, Routes } from "react-router-dom";
 
 import { Routes, Route, Link } from "react-router-dom";
-// import Callback from "./Callback";
 import Protected from "./Protected";
 import Callback from "./Callback";
 

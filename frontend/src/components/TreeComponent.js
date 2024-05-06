@@ -5,7 +5,7 @@ import { PROMPT_API } from "../utils/config_data";
 import useStore from "../hooks/useStore";
 import { MdAddCircle, MdDelete } from "react-icons/md";
 
-const isLeaf = (node) => !node.children || node.children.length === 0;
+// const isLeaf = (node) => !node.children || node.children.length === 0;
 
 const TreeNode = ({ node, depth }) => {
   const currentPrompt = useStore((state) => state.currentPrompt);
@@ -115,7 +115,8 @@ const TreeNode = ({ node, depth }) => {
   const getDeleteButton = (node_) => {
     if (role.toLowerCase() !== "admin") return null;
 
-    if (node_.type === "prompt") {
+    if (node_.type === "template") {
+      // alert("Delete button" + JSON.stringify(node_));
       return (
         <button
           className="float-end"
@@ -129,6 +130,41 @@ const TreeNode = ({ node, depth }) => {
         </button>
       );
     }
+
+    if (node_.type === "category") {
+      // alert("Delete button" + JSON.stringify(node_));
+      return (
+        <button
+          className="float-end"
+          onClick={async (e) => {
+            e.stopPropagation();
+            await deletePromptCategory(node_);
+            // alert("Add prompt template");
+          }}
+        >
+          <MdDelete className="text-xl hover:text-gray-200" />
+        </button>
+      );
+    }
+
+    // deletePromptDirectory
+
+    if (node_.type === "directory") {
+      // alert("Delete button" + JSON.stringify(node_));
+      return (
+        <button
+          className="float-end"
+          onClick={async (e) => {
+            e.stopPropagation();
+            await deletePromptDirectory(node_);
+            // alert("Add prompt template");
+          }}
+        >
+          <MdDelete className="text-xl hover:text-gray-200" />
+        </button>
+      );
+    }
+
     return null;
   };
 
@@ -220,7 +256,7 @@ const TreeNode = ({ node, depth }) => {
             name: name,
             id: Math.random().toString(36).substr(2, 9),
             isLeaf: true,
-            type: "prompt",
+            type: "template",
             file: node_.file,
             directory: node_.directory,
             category: node.name,
@@ -258,6 +294,74 @@ const TreeNode = ({ node, depth }) => {
         setPromptTree(newTree);
       } else {
         alert("Error deleting prompt template: " + JSON.stringify(resp));
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setScreenLoader(false);
+    }
+  };
+
+  const deletePromptCategory = async (node_) => {
+    const conf = window.confirm(
+      "Are you sure you want to delete this prompt category?"
+    );
+    if (!conf) return;
+
+    const category_name = node_.name,
+      dir_name = node_.directory;
+
+    try {
+      setScreenLoader(true);
+      const resp = await post(PROMPT_API + "/delete_prompt_category", {
+        category_name: category_name,
+        dir_name: dir_name,
+      });
+
+      if (resp.status === "success") {
+        alert("Prompt Category deleted successfully");
+        let newTree = JSON.parse(JSON.stringify(promptTree));
+        for (let i = 0; i < newTree.children.length; i++) {
+          if (newTree.children[i].name === dir_name) {
+            newTree.children[i].isOpen = true;
+            newTree.children[i].children = newTree.children[i].children.filter(
+              (c) => c.name !== category_name
+            );
+            break;
+          }
+        }
+        setPromptTree(newTree);
+      } else {
+        alert("Error deleting prompt category: " + JSON.stringify(resp));
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setScreenLoader(false);
+    }
+  };
+
+  const deletePromptDirectory = async (node_) => {
+    const conf = window.confirm(
+      "Are you sure you want to delete this prompt directory?"
+    );
+    if (!conf) return;
+
+    const dir_name = node_.name;
+
+    try {
+      setScreenLoader(true);
+      const resp = await post(PROMPT_API + "/delete_prompt_directory", {
+        dir_name: dir_name,
+      });
+
+      if (resp.status === "success") {
+        alert("Prompt Directory deleted successfully");
+        let newTree = JSON.parse(JSON.stringify(promptTree));
+        newTree.children = newTree.children.filter((c) => c.name !== dir_name);
+        setPromptTree(newTree);
+      } else {
+        alert("Error deleting prompt directory: " + JSON.stringify(resp));
       }
     } catch (e) {
       console.log(e);
@@ -306,6 +410,7 @@ export const TreeComponent = ({ data }) => {
   const setScreenLoader = useStore((state) => state.setScreenLoader);
   const setPromptTree = useStore((state) => state.setPromptTree);
   const role = useStore((state) => state.role);
+
   const createPromptDirectory = async () => {
     const name = prompt("Please enter Directory Name:");
 
