@@ -15,20 +15,33 @@ class GoogleSheet:
         self.spreadsheet = self.client.open_by_key(sheet_id)
         self.worksheet = self.spreadsheet.worksheet(tab_name)
 
+        self.get_all_records(tab_name="Prompt Templates")
+
     def re_init(self, tab_name=""):
         self.client = gspread.authorize(credentials)
         self.spreadsheet = self.client.open_by_key(self.spreadsheet.id)
         self.worksheet = self.spreadsheet.worksheet(tab_name or "Users")
 
-    def get_all_records(self, tab_name=""):
+    def get_all_records(self, tab_name="", range=""):
         try:
             if tab_name != "":
                 self.worksheet = self.spreadsheet.worksheet(tab_name)
-            records = self.worksheet.get_all_records()
         except gspread.exceptions.APIError:
             self.re_init(tab_name=tab_name)
-            records = self.worksheet.get_all_records()
-        
+        if range:
+            records = self.worksheet.get(range)
+            if len(records) == 0:
+                return []
+            else:
+                required_columns = records[0]
+                filtered_data = []
+                for row in records[1:]:
+                    filtered_row = {required_columns[i]: row[i] for i in range(len(required_columns))}
+                    filtered_data.append(filtered_row)
+
+                return filtered_data
+
+        records = self.worksheet.get_all_records()
         rows = []
         for record in records:
             rows.append(record)
@@ -68,7 +81,7 @@ class GoogleSheet:
             if tab_name != "":
                 self.worksheet = self.spreadsheet.worksheet(tab_name)
             records = self.get_all_records(tab_name=tab_name)
-            print(records)
+            # print(records)
         except gspread.exceptions.APIError:
             self.re_init(tab_name=tab_name)
             records = self.get_all_records(tab_name=tab_name)
